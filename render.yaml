@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: vaikunth-yoga-retreat
+    env: node
+    buildCommand: ./render-build.sh
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
