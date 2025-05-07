@@ -202,7 +202,7 @@ const Contact = () => {
                   </ContactIcon>
                   <ContactDetails>
                     <ContactLabel>Phone</ContactLabel>
-                    <ContactValue>+91 98765 43210</ContactValue>
+                    <ContactValue>+91 73006 20149</ContactValue>
                   </ContactDetails>
                 </ContactMethod>
 
@@ -222,7 +222,7 @@ const Contact = () => {
                   </ContactIcon>
                   <ContactDetails>
                     <ContactLabel>WhatsApp</ContactLabel>
-                    <ContactValue>+91 98765 43210</ContactValue>
+                    <ContactValue>+91 73006 20149</ContactValue>
                   </ContactDetails>
                 </ContactMethod>
               </ContactMethods>

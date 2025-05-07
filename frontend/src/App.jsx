@@ -46,7 +46,7 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Footer />
-        <WhatsAppButton phoneNumber="919876543210" message="Hello! I'm interested in Vaikunth Yoga Retreat." />
+        <WhatsAppButton phoneNumber="917300620149" message="Hello! I'm interested in Vaikunth Yoga Retreat." />
       </Router>
     </ThemeProvider>
   );

@@ -39,14 +39,14 @@ class EmailService {
             <h1 style="color: #2a5d45; margin-bottom: 5px;">Booking Confirmation</h1>
             <p style="color: #666; font-size: 16px;">Thank you for choosing Vaikunth Yoga Retreat</p>
           </div>
-          
+
           <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
             <h2 style="color: #2a5d45; margin-top: 0;">Booking Details</h2>
             <p><strong>Booking ID:</strong> ${booking._id}</p>
             <p><strong>Booking Date:</strong> ${bookingDate}</p>
             <p><strong>Status:</strong> ${booking.status}</p>
           </div>
-          
+
           <div style="margin-bottom: 20px;">
             <h2 style="color: #2a5d45;">Program Information</h2>
             <p><strong>Program:</strong> ${program.title}</p>
@@ -54,27 +54,27 @@ class EmailService {
             <p><strong>Accommodation:</strong> ${accommodation.name}</p>
             <p><strong>Guests:</strong> ${booking.guests}</p>
           </div>
-          
+
           <div style="margin-bottom: 20px;">
             <h2 style="color: #2a5d45;">Payment Information</h2>
             <p><strong>Total Amount:</strong> $${booking.totalAmount.toFixed(2)}</p>
             <p><strong>Deposit Required (30%):</strong> $${(booking.totalAmount * 0.3).toFixed(2)}</p>
             <p><strong>Payment Status:</strong> ${booking.paymentStatus}</p>
           </div>
-          
+
           <div style="background-color: #f0f7f4; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
             <h2 style="color: #2a5d45; margin-top: 0;">Next Steps</h2>
             <p>To confirm your booking, please make a deposit payment of 30% within the next 48 hours. You will receive payment instructions separately.</p>
             <p>The remaining balance is due 30 days before your arrival date.</p>
           </div>
-          
+
           <div style="margin-bottom: 20px;">
             <h2 style="color: #2a5d45;">Need Help?</h2>
             <p>If you have any questions or need to make changes to your booking, please contact us at:</p>
             <p>Email: <a href="mailto:info@vaikunthyogaretreat.com" style="color: #2a5d45;">info@vaikunthyogaretreat.com</a></p>
-            <p>Phone: +91 98765 43210</p>
+            <p>Phone: +91 73006 20149</p>
           </div>
-          
+
           <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
             <p style="color: #666; font-size: 14px;">We look forward to welcoming you to Vaikunth Yoga Retreat!</p>
             <p style="color: #666; font-size: 12px;">© 2023 Vaikunth Yoga Retreat. All rights reserved.</p>
@@ -109,21 +109,21 @@ class EmailService {
             <h1 style="color: #2a5d45; margin-bottom: 5px;">New Booking Received</h1>
             <p style="color: #666; font-size: 16px;">A new booking has been made on the website</p>
           </div>
-          
+
           <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
             <h2 style="color: #2a5d45; margin-top: 0;">Booking Details</h2>
             <p><strong>Booking ID:</strong> ${booking._id}</p>
             <p><strong>Booking Date:</strong> ${bookingDate}</p>
             <p><strong>Status:</strong> ${booking.status}</p>
           </div>
-          
+
           <div style="margin-bottom: 20px;">
             <h2 style="color: #2a5d45;">Customer Information</h2>
             <p><strong>Name:</strong> ${user.firstName} ${user.lastName}</p>
             <p><strong>Email:</strong> ${user.email}</p>
             <p><strong>Phone:</strong> ${user.phone}</p>
           </div>
-          
+
           <div style="margin-bottom: 20px;">
             <h2 style="color: #2a5d45;">Program Information</h2>
             <p><strong>Program:</strong> ${program.title}</p>
@@ -131,18 +131,18 @@ class EmailService {
             <p><strong>Accommodation:</strong> ${accommodation.name}</p>
             <p><strong>Guests:</strong> ${booking.guests}</p>
           </div>
-          
+
           <div style="margin-bottom: 20px;">
             <h2 style="color: #2a5d45;">Payment Information</h2>
             <p><strong>Total Amount:</strong> $${booking.totalAmount.toFixed(2)}</p>
             <p><strong>Payment Status:</strong> ${booking.paymentStatus}</p>
           </div>
-          
+
           <div style="background-color: #f0f7f4; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
             <h2 style="color: #2a5d45; margin-top: 0;">Special Requests</h2>
             <p>${booking.specialRequests || 'No special requests'}</p>
           </div>
-          
+
           <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
             <p style="color: #666; font-size: 14px;">Please log in to the admin dashboard to manage this booking.</p>
             <p style="color: #666; font-size: 12px;">© 2023 Vaikunth Yoga Retreat. All rights reserved.</p>
@@ -170,7 +170,7 @@ class EmailService {
             <h1 style="color: #2a5d45; margin-bottom: 5px;">New Contact Form Submission</h1>
             <p style="color: #666; font-size: 16px;">A new message has been submitted through the contact form</p>
           </div>
-          
+
           <div style="margin-bottom: 20px;">
             <h2 style="color: #2a5d45;">Contact Information</h2>
             <p><strong>Name:</strong> ${contactData.name}</p>
@@ -178,12 +178,12 @@ class EmailService {
             <p><strong>Phone:</strong> ${contactData.phone || 'Not provided'}</p>
             <p><strong>Subject:</strong> ${contactData.subject}</p>
           </div>
-          
+
           <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
             <h2 style="color: #2a5d45; margin-top: 0;">Message</h2>
             <p>${contactData.message}</p>
           </div>
-          
+
           <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
             <p style="color: #666; font-size: 12px;">© 2023 Vaikunth Yoga Retreat. All rights reserved.</p>
           </div>
@@ -210,7 +210,7 @@ class EmailService {
             <h1 style="color: #2a5d45; margin-bottom: 5px;">Welcome to Our Newsletter!</h1>
             <p style="color: #666; font-size: 16px;">Thank you for subscribing to the Vaikunth Yoga Retreat newsletter</p>
           </div>
-          
+
           <div style="background-color: #f0f7f4; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
             <h2 style="color: #2a5d45; margin-top: 0;">What to Expect</h2>
             <p>You'll receive:</p>
@@ -221,17 +221,17 @@ class EmailService {
               <li>Seasonal Ayurvedic wisdom</li>
             </ul>
           </div>
-          
+
           <div style="margin-bottom: 20px;">
             <h2 style="color: #2a5d45;">Connect With Us</h2>
             <p>Follow us on social media for daily inspiration:</p>
             <p>
-              <a href="https://www.facebook.com/vaikunthyogaretreat" style="color: #2a5d45;">Facebook</a> | 
-              <a href="https://www.instagram.com/vaikunthyogaretreat" style="color: #2a5d45;">Instagram</a> | 
+              <a href="https://www.facebook.com/vaikunthyogaretreat" style="color: #2a5d45;">Facebook</a> |
+              <a href="https://www.instagram.com/vaikunthyogaretreat" style="color: #2a5d45;">Instagram</a> |
               <a href="https://www.youtube.com/vaikunthyogaretreat" style="color: #2a5d45;">YouTube</a>
             </p>
           </div>
-          
+
           <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
             <p style="color: #666; font-size: 14px;">We're excited to have you join our community!</p>
             <p style="color: #666; font-size: 12px;">© 2023 Vaikunth Yoga Retreat. All rights reserved.</p>

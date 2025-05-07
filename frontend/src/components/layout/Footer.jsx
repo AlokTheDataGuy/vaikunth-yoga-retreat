@@ -69,7 +69,7 @@ const Footer = () => {
               <ContactIcon>
                 <FaPhone />
               </ContactIcon>
-              <ContactText>+91 98765 43210</ContactText>
+              <ContactText>+91 73006 20149</ContactText>
             </ContactItem>
             <ContactItem>
               <ContactIcon>

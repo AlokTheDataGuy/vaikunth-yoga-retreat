@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { FaWhatsapp } from 'react-icons/fa';
 
-const WhatsAppButton = ({ phoneNumber = '919876543210', message = 'Hello! I have a question about Vaikunth Yoga Retreat.' }) => {
+const WhatsAppButton = ({ phoneNumber = '917300620149', message = 'Hello! I have a question about Vaikunth Yoga Retreat.' }) => {
   // Format the phone number (remove any non-digit characters)
   const formattedPhone = phoneNumber.replace(/\D/g, '');
 
