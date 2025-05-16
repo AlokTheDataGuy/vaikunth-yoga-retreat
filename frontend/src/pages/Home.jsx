@@ -384,12 +384,27 @@ const Home = () => {
             </GalleryItem>
             <GalleryItem>
               <GalleryImage src={getCategoryPlaceholder('yoga', 800, 800)} alt="Meditation session" />
+              <GalleryOverlay>
+                <GalleryQuote>
+                  "Meditation at Vaikunth opened my mind to new possibilities."
+                </GalleryQuote>
+              </GalleryOverlay>
             </GalleryItem>
             <GalleryItem>
               <GalleryImage src={getCategoryPlaceholder('nature', 800, 800)} alt="Himalayan views" />
+              <GalleryOverlay>
+                <GalleryQuote>
+                  "The Himalayan views here are beyond words, truly divine."
+                </GalleryQuote>
+              </GalleryOverlay>
             </GalleryItem>
             <GalleryItem>
               <GalleryImage src={getCategoryPlaceholder('yoga', 800, 800)} alt="Ayurvedic treatment" />
+              <GalleryOverlay>
+                <GalleryQuote>
+                  "Ayurvedic treatments here restored my balance and vitality."
+                </GalleryQuote>
+              </GalleryOverlay>
             </GalleryItem>
             <GalleryItem className="vertical">
               <GalleryImage src={getCategoryPlaceholder('yoga', 800, 1200)} alt="Yoga pose" />
@@ -401,6 +416,19 @@ const Home = () => {
             </GalleryItem>
             <GalleryItem>
               <GalleryImage src={getCategoryPlaceholder('nature', 800, 800)} alt="Group hiking" />
+              <GalleryOverlay>
+                <GalleryQuote>
+                  "Hiking with like-minded souls created lifelong bonds."
+                </GalleryQuote>
+              </GalleryOverlay>
+            </GalleryItem>
+            <GalleryItem>
+              <GalleryImage src={getCategoryPlaceholder('nature', 800, 800)} alt="Silent Mediation" />
+              <GalleryOverlay>
+                <GalleryQuote>
+                  "Real healing happens when you silence the mind."
+                </GalleryQuote>
+              </GalleryOverlay>
             </GalleryItem>
           </GalleryGrid>
 
