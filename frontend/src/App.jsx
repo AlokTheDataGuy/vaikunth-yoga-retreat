@@ -23,6 +23,7 @@ import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import ScrollToTop from './components/utils/ScrollToTop';
 import WhatsAppButton from './components/ui/WhatsAppButton';
+import ConstructionModal from './components/ui/ConstructionModal';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
       <Router>
         <ScrollToTop />
         <Navbar />
+        <ConstructionModal />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
