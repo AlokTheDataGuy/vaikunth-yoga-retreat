@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { FaFilter, FaStar } from 'react-icons/fa';
@@ -146,12 +145,11 @@ const TestimonialsPage = () => {
       {/* Hero Section */}
       <Section
         $backgroundImage="/assets/images/testimonials/testimonials-hero.jpg"
-        // $backgroundImage="/assets/images/blog.png"
         $fullWidth={true}
         $overlay={true}
         ref={heroRef}
       >
-        <HeroContent>
+        <div className="hero-content">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={heroInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
@@ -164,11 +162,11 @@ const TestimonialsPage = () => {
               color="light"
               withDivider
             />
-            <HeroText>
+            <p className="hero-text">
               Discover the transformative journeys of our guests from around the world
-            </HeroText>
+            </p>
           </motion.div>
-        </HeroContent>
+        </div>
       </Section>
 
       {/* Testimonials Section */}
@@ -177,212 +175,270 @@ const TestimonialsPage = () => {
           initial="hidden"
           animate={contentInView ? "visible" : "hidden"}
           variants={fadeIn}
+          className="testimonials-wrapper"
         >
-          <TestimonialsContainer>
+          <div className="testimonials-container">
             {/* Filters */}
-            <FiltersContainer>
-              <FilterGroup>
-                <FilterLabel>
+            <div className="filters-container">
+              <div className="filter-group">
+                <div className="filter-label">
                   <FaFilter />
                   <span>Filter by Program:</span>
-                </FilterLabel>
-                <ProgramFilters>
+                </div>
+                <div className="program-filters">
                   {programCategories.map(program => (
-                    <FilterButton
+                    <button
                       key={program}
-                      $isActive={activeFilter === program}
+                      className={`filter-button ${activeFilter === program ? 'active' : ''}`}
                       onClick={() => setActiveFilter(program)}
                     >
                       {program}
-                    </FilterButton>
+                    </button>
                   ))}
-                </ProgramFilters>
-              </FilterGroup>
+                </div>
+              </div>
 
-              <FilterGroup>
-                <FilterLabel>
+              <div className="filter-group">
+                <div className="filter-label">
                   <FaStar />
                   <span>Filter by Rating:</span>
-                </FilterLabel>
-                <RatingFilters>
-                  <FilterButton
-                    $isActive={activeRating === 0}
+                </div>
+                <div className="rating-filters">
+                  <button
+                    className={`filter-button ${activeRating === 0 ? 'active' : ''}`}
                     onClick={() => setActiveRating(0)}
                   >
                     All Ratings
-                  </FilterButton>
+                  </button>
                   {[5, 4, 3].map(rating => (
-                    <FilterButton
+                    <button
                       key={rating}
-                      $isActive={activeRating === rating}
+                      className={`filter-button ${activeRating === rating ? 'active' : ''}`}
                       onClick={() => setActiveRating(rating)}
                     >
                       {rating}+ Stars
-                    </FilterButton>
+                    </button>
                   ))}
-                </RatingFilters>
-              </FilterGroup>
-            </FiltersContainer>
+                </div>
+              </div>
+            </div>
 
             {/* Testimonials Grid */}
             {filteredTestimonials.length > 0 ? (
               <motion.div variants={staggerContainer}>
-                <TestimonialsGrid>
+                <div className="testimonials-grid">
                   {filteredTestimonials.map(testimonial => (
-                    <motion.div key={testimonial.id} variants={fadeIn}>
-                      <TestimonialCard testimonial={testimonial} />
+                    <motion.div key={testimonial.id} variants={fadeIn} className="testimonial-card-wrapper">
+                      <TestimonialCard 
+                        testimonial={testimonial} 
+                        variant={testimonial.id === 1 ? 'featured' : 'default'} 
+                      />
                     </motion.div>
                   ))}
-                </TestimonialsGrid>
+                </div>
               </motion.div>
             ) : (
-              <NoResultsMessage>
+              <div className="no-results-message">
                 No testimonials match your current filters. Please try different criteria.
-              </NoResultsMessage>
+              </div>
             )}
-          </TestimonialsContainer>
+          </div>
         </motion.div>
       </Section>
+
+      <style jsx>{`
+        .hero-content {
+          max-width: 800px;
+          margin: 0 auto;
+          text-align: center;
+          padding: 4rem 0;
+        }
+        
+        .hero-text {
+          font-size: 1.25rem;
+          color: #fff;
+          margin-top: 1.5rem;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .testimonials-wrapper {
+          width: 100%;
+        }
+        
+        .testimonials-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          width: 100%;
+          padding: 0 1rem;
+        }
+        
+        .filters-container {
+          margin-bottom: 2rem;
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+          width: 100%;
+        }
+        
+        .filter-group {
+          display: flex;
+          flex-direction: column;
+          gap: 0.75rem;
+          width: 100%;
+        }
+        
+        .filter-label {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-weight: 500;
+          color: #4a5568;
+          margin-bottom: 0.5rem;
+        }
+        
+        .filter-label svg {
+          color: #2d6a4f;
+        }
+        
+        .program-filters,
+        .rating-filters {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          width: 100%;
+        }
+        
+        .filter-button {
+          padding: 0.5rem 1rem;
+          background-color: #f7fafc;
+          color: #4a5568;
+          border: none;
+          border-radius: 9999px;
+          font-size: 0.875rem;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          white-space: nowrap;
+        }
+        
+        .filter-button:hover {
+          background-color: #edf2f7;
+        }
+        
+        .filter-button.active {
+          background-color: #2d6a4f;
+          color: #ffffff;
+        }
+        
+        .testimonials-grid {
+          display: grid;
+          grid-template-columns: repeat(1, 1fr);
+          gap: 1.5rem;
+          width: 100%;
+        }
+        
+        .testimonial-card-wrapper {
+          height: 100%;
+        }
+        
+        .no-results-message {
+          text-align: center;
+          padding: 2.5rem;
+          font-size: 1.125rem;
+          color: #a0aec0;
+        }
+        
+        @media (min-width: 768px) {
+          .testimonials-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+          }
+        }
+        
+        @media (min-width: 1024px) {
+          .testimonials-grid {
+            grid-template-columns: repeat(3, 1fr);
+          }
+        }
+        
+        @media (max-width: 768px) {
+          .hero-content {
+            padding: 3rem 0;
+          }
+          
+          .hero-text {
+            font-size: 1.125rem;
+          }
+          
+          .filters-container {
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+          }
+          
+          .filter-group {
+            align-items: flex-start;
+            gap: 0.5rem;
+          }
+        }
+        
+        @media (max-width: 480px) {
+          .hero-content {
+            padding: 2rem 0;
+            max-width: 90%;
+          }
+          
+          .hero-text {
+            font-size: 1rem;
+          }
+          
+          .testimonials-container {
+            padding: 0 0.75rem;
+          }
+          
+          .filters-container {
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+          }
+          
+          .filter-label {
+            font-size: 0.875rem;
+          }
+          
+          .program-filters,
+          .rating-filters {
+            overflow-x: auto;
+            flex-wrap: nowrap;
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.5rem;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            width: calc(100% + 1.5rem);
+            margin-left: -0.75rem;
+            padding-left: 0.75rem;
+          }
+          
+          .program-filters::-webkit-scrollbar,
+          .rating-filters::-webkit-scrollbar {
+            display: none;
+          }
+          
+          .filter-button {
+            flex-shrink: 0;
+            font-size: 0.75rem;
+            padding: 0.375rem 0.75rem;
+          }
+          
+          .testimonials-grid {
+            gap: 1rem;
+          }
+          
+          .no-results-message {
+            padding: 1.5rem;
+            font-size: 1rem;
+          }
+        }
+      `}</style>
     </main>
   );
 };
-
-// Styled Components
-const HeroContent = styled.div`
-  max-width: 800px;
-  margin: 0 auto;
-  text-align: center;
-  padding: ${({ theme }) => theme.spacing[16]} 0;
-`;
-
-const HeroText = styled.p`
-  font-size: ${({ theme }) => theme.typography.fontSize.xl};
-  color: ${({ theme }) => theme.colors.white};
-  margin-top: ${({ theme }) => theme.spacing[6]};
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    font-size: ${({ theme }) => theme.typography.fontSize.lg};
-  }
-`;
-
-const TestimonialsContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-`;
-
-const FiltersContainer = styled.div`
-  margin-bottom: ${({ theme }) => theme.spacing[8]};
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing[6]};
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    gap: ${({ theme }) => theme.spacing[4]};
-  }
-`;
-
-const FilterGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: ${({ theme }) => theme.spacing[3]};
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    align-items: flex-start;
-  }
-`;
-
-const FilterLabel = styled.div`
-  display: flex;
-  align-items: center;
-  gap: ${({ theme }) => theme.spacing[2]};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
-  color: ${({ theme }) => theme.colors.gray[700]};
-
-  svg {
-    color: ${({ theme }) => theme.colors.primary};
-  }
-`;
-
-const ProgramFilters = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing[2]};
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    padding-bottom: ${({ theme }) => theme.spacing[2]};
-    margin-bottom: ${({ theme }) => theme.spacing[2]};
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-`;
-
-const RatingFilters = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: ${({ theme }) => theme.spacing[2]};
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    padding-bottom: ${({ theme }) => theme.spacing[2]};
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
-  }
-`;
-
-const FilterButton = styled.button`
-  padding: ${({ theme }) => theme.spacing[2]} ${({ theme }) => theme.spacing[4]};
-  background-color: ${({ $isActive, theme }) =>
-    $isActive ? theme.colors.primary : theme.colors.gray[100]};
-  color: ${({ $isActive, theme }) =>
-    $isActive ? theme.colors.white : theme.colors.gray[700]};
-  border: none;
-  border-radius: ${({ theme }) => theme.borderRadius.full};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  cursor: pointer;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-
-  &:hover {
-    background-color: ${({ $isActive, theme }) =>
-      $isActive ? theme.colors.primary : theme.colors.gray[200]};
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    flex-shrink: 0;
-  }
-`;
-
-const TestimonialsGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  gap: ${({ theme }) => theme.spacing[6]};
-
-  @media (min-width: ${({ theme }) => theme.breakpoints.md}) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-`;
-
-const NoResultsMessage = styled.div`
-  text-align: center;
-  padding: ${({ theme }) => theme.spacing[10]};
-  font-size: ${({ theme }) => theme.typography.fontSize.lg};
-  color: ${({ theme }) => theme.colors.gray[500]};
-`;
 
 export default TestimonialsPage;
