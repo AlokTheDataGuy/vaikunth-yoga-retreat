@@ -159,10 +159,6 @@ const Home = () => {
             style={{ width: '100%' }}
           >
             <HeroHeading>
-              {/* <LogoText>
-                <VaikunthText>VAIKUNTH</VaikunthText>
-                <YogaRetreatText>YOGA RETREAT</YogaRetreatText>
-              </LogoText> */}
               Vaikunth Yoga Retreat
             </HeroHeading>
             <HeroSubheading>A Journey to Wholeness in the Himalayas</HeroSubheading>

@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { FaQuoteLeft, FaStar } from 'react-icons/fa';
 
@@ -6,8 +7,8 @@ import { FaQuoteLeft, FaStar } from 'react-icons/fa';
 const TestimonialCard = ({ testimonial, variant = 'default' }) => {
   const renderStars = (rating) => {
     return Array.from({ length: 5 }, (_, i) => (
-      <span 
-        key={i} 
+      <span
+        key={i}
         className={`star ${i < rating ? 'filled' : ''}`}
       >
         <FaStar />
@@ -17,324 +18,257 @@ const TestimonialCard = ({ testimonial, variant = 'default' }) => {
 
   if (variant === 'featured') {
     return (
-      <motion.div 
-        className="featured-card"
+      <FeaturedCard
         whileHover={{ y: -5 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="featured-quote-icon">
+        <QuoteIcon>
           <FaQuoteLeft />
-        </div>
-        <div className="featured-content">
-          <p className="featured-text">{testimonial.text}</p>
-          <div className="featured-rating">{renderStars(testimonial.rating)}</div>
-          <div className="featured-author-container">
-            <img 
-              className="featured-author-image" 
-              src={testimonial.image} 
-              alt={testimonial.name} 
+        </QuoteIcon>
+        <FeaturedContent>
+          <FeaturedText>{testimonial.text}</FeaturedText>
+          <Rating>{renderStars(testimonial.rating)}</Rating>
+          <AuthorContainer>
+            <AuthorImage
+              src={testimonial.image}
+              alt={testimonial.name}
             />
-            <div className="featured-author-info">
-              <h4 className="featured-author-name">{testimonial.name}</h4>
-              <p className="featured-author-location">{testimonial.location}</p>
+            <AuthorInfo>
+              <AuthorName>{testimonial.name}</AuthorName>
+              <AuthorLocation>{testimonial.location}</AuthorLocation>
               {testimonial.program && (
-                <p className="featured-author-program">{testimonial.program}</p>
+                <AuthorProgram>{testimonial.program}</AuthorProgram>
               )}
-            </div>
-          </div>
-        </div>
-        <style jsx>{`
-          .featured-card {
-            background-color: #2d6a4f;
-            color: #ffffff;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-          }
-          
-          .featured-quote-icon {
-            color: #ffffff;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            opacity: 0.7;
-          }
-          
-          .featured-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-          }
-          
-          .featured-text {
-            font-size: 1.125rem;
-            line-height: 1.6;
-            color: #ffffff;
-            margin-bottom: 1rem;
-            flex: 1;
-            font-weight: 500;
-          }
-          
-          .featured-rating {
-            display: flex;
-            margin-bottom: 1rem;
-          }
-          
-          .featured-author-container {
-            display: flex;
-            align-items: center;
-          }
-          
-          .featured-author-image {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 0.75rem;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-          }
-          
-          .featured-author-info {
-            display: flex;
-            flex-direction: column;
-          }
-          
-          .featured-author-name {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #ffffff;
-            margin: 0 0 0.25rem 0;
-          }
-          
-          .featured-author-location {
-            font-size: 0.875rem;
-            color: #ffffff;
-            opacity: 0.8;
-            margin: 0 0 0.25rem 0;
-          }
-          
-          .featured-author-program {
-            font-size: 0.875rem;
-            color: #ffffff;
-            opacity: 0.8;
-            margin: 0;
-            font-style: italic;
-          }
-          
-          @media (max-width: 768px) {
-            .featured-text {
-              font-size: 1rem;
-            }
-          }
-          
-          @media (max-width: 480px) {
-            .featured-card {
-              padding: 1rem;
-            }
-            .featured-quote-icon {
-              font-size: 1.25rem;
-              margin-bottom: 0.75rem;
-            }
-            .featured-text {
-              font-size: 0.95rem;
-              margin-bottom: 0.75rem;
-            }
-            .featured-author-image {
-              width: 40px;
-              height: 40px;
-              margin-right: 0.5rem;
-            }
-            .featured-author-name {
-              font-size: 0.875rem;
-            }
-            .featured-author-location,
-            .featured-author-program {
-              font-size: 0.75rem;
-            }
-          }
-          
-          .star {
-            color: #cbd5e0;
-            margin-right: 0.25rem;
-            font-size: 1rem;
-          }
-          
-          .star.filled {
-            color: #f6ad55;
-          }
-          
-          @media (max-width: 480px) {
-            .star {
-              font-size: 0.875rem;
-            }
-          }
-        `}</style>
-      </motion.div>
+            </AuthorInfo>
+          </AuthorContainer>
+        </FeaturedContent>
+      </FeaturedCard>
     );
   }
 
   return (
-    <motion.div 
-      className="card"
+    <RegularCard
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
     >
-      <div className="quote-icon">
+      <QuoteIcon>
         <FaQuoteLeft />
-      </div>
-      <div className="content">
-        <p className="text">{testimonial.text}</p>
-        <div className="rating">{renderStars(testimonial.rating)}</div>
-        <div className="author-container">
-          <img 
-            className="author-image" 
-            src={testimonial.image} 
-            alt={testimonial.name} 
+      </QuoteIcon>
+      <CardContent>
+        <TestimonialText>{testimonial.text}</TestimonialText>
+        <Rating>{renderStars(testimonial.rating)}</Rating>
+        <AuthorContainer>
+          <AuthorImage
+            src={testimonial.image}
+            alt={testimonial.name}
           />
-          <div className="author-info">
-            <h4 className="author-name">{testimonial.name}</h4>
-            <p className="author-location">{testimonial.location}</p>
+          <AuthorInfo>
+            <AuthorName>{testimonial.name}</AuthorName>
+            <AuthorLocation>{testimonial.location}</AuthorLocation>
             {testimonial.program && (
-              <p className="author-program">{testimonial.program}</p>
+              <AuthorProgram>{testimonial.program}</AuthorProgram>
             )}
-          </div>
-        </div>
-      </div>
-      <style jsx>{`
-        .card {
-          background-color: #ffffff;
-          border-radius: 1rem;
-          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-          padding: 1.5rem;
-          height: 100%;
-          display: flex;
-          flex-direction: column;
-          position: relative;
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .card:hover {
-          box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .quote-icon {
-          color: #2d6a4f;
-          font-size: 1.5rem;
-          margin-bottom: 1rem;
-          opacity: 0.5;
-        }
-        
-        .content {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-        }
-        
-        .text {
-          font-size: 1rem;
-          line-height: 1.6;
-          color: #4a5568;
-          margin-bottom: 1rem;
-          flex: 1;
-        }
-        
-        .rating {
-          display: flex;
-          margin-bottom: 1rem;
-        }
-        
-        .author-container {
-          display: flex;
-          align-items: center;
-        }
-        
-        .author-image {
-          width: 50px;
-          height: 50px;
-          border-radius: 50%;
-          object-fit: cover;
-          margin-right: 0.75rem;
-        }
-        
-        .author-info {
-          display: flex;
-          flex-direction: column;
-        }
-        
-        .author-name {
-          font-size: 1rem;
-          font-weight: 600;
-          color: #2d3748;
-          margin: 0 0 0.25rem 0;
-        }
-        
-        .author-location {
-          font-size: 0.875rem;
-          color: #718096;
-          margin: 0 0 0.25rem 0;
-        }
-        
-        .author-program {
-          font-size: 0.875rem;
-          color: #718096;
-          margin: 0;
-          font-style: italic;
-        }
-        
-        .star {
-          color: #cbd5e0;
-          margin-right: 0.25rem;
-          font-size: 1rem;
-        }
-        
-        .star.filled {
-          color: #f6ad55;
-        }
-        
-        @media (max-width: 768px) {
-          .text {
-            font-size: 0.95rem;
-          }
-        }
-        
-        @media (max-width: 480px) {
-          .card {
-            padding: 1rem;
-          }
-          .quote-icon {
-            font-size: 1.25rem;
-            margin-bottom: 0.75rem;
-          }
-          .text {
-            font-size: 0.875rem;
-            line-height: 1.5;
-            margin-bottom: 0.75rem;
-          }
-          .rating {
-            margin-bottom: 0.75rem;
-          }
-          .author-image {
-            width: 40px;
-            height: 40px;
-            margin-right: 0.5rem;
-          }
-          .author-name {
-            font-size: 0.875rem;
-          }
-          .author-location,
-          .author-program {
-            font-size: 0.75rem;
-          }
-          .star {
-            font-size: 0.875rem;
-          }
-        }
-      `}</style>
-    </motion.div>
+          </AuthorInfo>
+        </AuthorContainer>
+      </CardContent>
+    </RegularCard>
   );
 };
+
+// Styled Components
+const FeaturedCard = styled(motion.div)`
+  background-color: ${({ theme }) => theme.colors.primary};
+  color: white;
+  border-radius: 1rem;
+  box-shadow: ${({ theme }) => theme.shadows.md};
+  padding: 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  @media (max-width: 480px) {
+    padding: 1rem;
+  }
+`;
+
+const RegularCard = styled(motion.div)`
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: ${({ theme }) => theme.shadows.md};
+  padding: 1.5rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    box-shadow: ${({ theme }) => theme.shadows.lg};
+  }
+
+  @media (max-width: 480px) {
+    padding: 1rem;
+  }
+`;
+
+const QuoteIcon = styled.div`
+  color: ${({ theme }) => theme.colors.primary};
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+
+  ${FeaturedCard} & {
+    color: white;
+    opacity: 0.7;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+`;
+
+const FeaturedContent = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+`;
+
+const CardContent = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+`;
+
+const FeaturedText = styled.p`
+  font-size: 1.125rem;
+  line-height: 1.6;
+  color: white;
+  margin-bottom: 1rem;
+  flex: 1;
+  font-weight: 500;
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+`;
+
+const TestimonialText = styled.p`
+  font-size: 1rem;
+  line-height: 1.6;
+  color: ${({ theme }) => theme.colors.gray[600]};
+  margin-bottom: 1rem;
+  flex: 1;
+
+  @media (max-width: 768px) {
+    font-size: 0.95rem;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+  }
+`;
+
+const Rating = styled.div`
+  display: flex;
+  margin-bottom: 1rem;
+
+  @media (max-width: 480px) {
+    margin-bottom: 0.75rem;
+  }
+`;
+
+const AuthorContainer = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+const AuthorImage = styled.img`
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 0.75rem;
+
+  ${FeaturedCard} & {
+    border: 2px solid rgba(255, 255, 255, 0.5);
+  }
+
+  @media (max-width: 480px) {
+    width: 40px;
+    height: 40px;
+    margin-right: 0.5rem;
+  }
+`;
+
+const AuthorInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
+const AuthorName = styled.h4`
+  font-size: 1rem;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.gray[800]};
+  margin: 0 0 0.25rem 0;
+
+  ${FeaturedCard} & {
+    color: white;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.875rem;
+  }
+`;
+
+const AuthorLocation = styled.p`
+  font-size: 0.875rem;
+  color: ${({ theme }) => theme.colors.gray[600]};
+  margin: 0 0 0.25rem 0;
+
+  ${FeaturedCard} & {
+    color: white;
+    opacity: 0.8;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.75rem;
+  }
+`;
+
+const AuthorProgram = styled.p`
+  font-size: 0.875rem;
+  color: ${({ theme }) => theme.colors.gray[600]};
+  margin: 0;
+  font-style: italic;
+
+  ${FeaturedCard} & {
+    color: white;
+    opacity: 0.8;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.75rem;
+  }
+`;
+
+// Star component
+const StarIcon = styled(FaStar)`
+  color: ${({ $filled }) => $filled ? '#f6ad55' : '#cbd5e0'};
+  margin-right: 0.25rem;
+  font-size: 1rem;
+
+  @media (max-width: 480px) {
+    font-size: 0.875rem;
+  }
+`;
 
 export default TestimonialCard;

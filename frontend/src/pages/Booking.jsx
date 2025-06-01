@@ -1,32 +1,99 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { FaCalendarAlt, FaUsers, FaYinYang, FaBed } from 'react-icons/fa';
+import {
+  FaCalendarAlt,
+  FaUsers,
+  FaYinYang,
+  FaBed,
+  FaMapMarkerAlt,
+  FaClock,
+  FaCheck,
+  FaShieldAlt,
+  FaCreditCard,
+  FaLock,
+  FaInfoCircle,
+  FaExclamationTriangle,
+  FaCalculator,
+  FaGift
+} from 'react-icons/fa';
 
 // Components
 import Section from '../components/ui/Section';
 import SectionHeading from '../components/ui/SectionHeading';
 import Button from '../components/ui/Button';
+import Card from '../components/ui/Card';
+import {
+  FormGroup,
+  FormLabel,
+  FormInput,
+  FormSelect,
+  FormTextarea,
+  FormCheckbox,
+  FormRow,
+  FormSection,
+  ErrorMessage,
+  SuccessMessage,
+  LoadingSpinner
+} from '../components/ui/FormComponents';
+
+// Context
+import { AuthContext } from '../context/AuthContext';
+
+// Utils
+import { getCategoryPlaceholder } from '../utils/imageUtils';
 
 const Booking = () => {
-  // Form state
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useContext(AuthContext);
+
+  // Enhanced form state
+  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    program: '',
+    // Personal Information
+    firstName: user?.name?.split(' ')[0] || '',
+    lastName: user?.name?.split(' ').slice(1).join(' ') || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    dateOfBirth: user?.dateOfBirth || '',
+    emergencyContact: '',
+    emergencyPhone: '',
+
+    // Program Selection
+    program: searchParams.get('program') || '',
     accommodation: '',
     guests: 1,
     checkIn: '',
     checkOut: '',
+
+    // Additional Services
+    airportPickup: false,
+    mealPreference: 'vegetarian',
+    yogaExperience: user?.yogaExperience || '',
+    healthConditions: '',
     specialRequests: '',
+
+    // Payment
+    paymentMethod: 'card',
+    agreeToTerms: false,
+    subscribeNewsletter: true
   });
+
+  const [programs, setPrograms] = useState([]);
+  const [accommodations, setAccommodations] = useState([]);
+  const [selectedProgram, setSelectedProgram] = useState(null);
+  const [selectedAccommodation, setSelectedAccommodation] = useState(null);
+  const [pricing, setPricing] = useState(null);
+  const [availability, setAvailability] = useState(null);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(true);
 
   // Animation hooks
   const [heroRef, heroInView] = useInView({
@@ -39,32 +106,219 @@ const Booking = () => {
     threshold: 0.1
   });
 
-  // Sample program data
-  const programs = [
-    { id: 'ytt', name: '200-Hour Yoga Teacher Training' },
-    { id: 'meditation', name: 'Meditation & Mindfulness Retreat' },
-    { id: 'ayurveda', name: 'Ayurvedic Panchakarma Cleanse' },
-    { id: 'trek', name: 'Himalayan Trek & Yoga Adventure' },
-    { id: 'wellness', name: 'Wellness Detox Program' },
-    { id: 'spiritual', name: 'Spiritual Healing Retreat' }
-  ];
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchInitialData();
+  }, []);
 
-  // Sample accommodation data
-  const accommodations = [
-    { id: 'standard', name: 'Standard Room', price: 'From $50/night' },
-    { id: 'deluxe', name: 'Deluxe Room', price: 'From $80/night' },
-    { id: 'suite', name: 'Himalayan Suite', price: 'From $120/night' },
-    { id: 'cottage', name: 'Private Cottage', price: 'From $150/night' },
-    { id: 'dormitory', name: 'Shared Dormitory', price: 'From $30/night' }
-  ];
+  // Update pricing when selection changes
+  useEffect(() => {
+    if (formData.program && formData.accommodation && formData.checkIn && formData.checkOut) {
+      calculatePricing();
+    }
+  }, [formData.program, formData.accommodation, formData.checkIn, formData.checkOut, formData.guests]);
+
+  // Check availability when dates change
+  useEffect(() => {
+    if (formData.program && formData.checkIn && formData.checkOut) {
+      checkAvailability();
+    }
+  }, [formData.program, formData.checkIn, formData.checkOut]);
+
+  const fetchInitialData = async () => {
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
+      // Fetch programs and accommodations
+      const [programsRes, accommodationsRes] = await Promise.all([
+        fetch(`${apiUrl}/api/programs`),
+        fetch(`${apiUrl}/api/accommodations`)
+      ]);
+
+      if (programsRes.ok && accommodationsRes.ok) {
+        const programsData = await programsRes.json();
+        const accommodationsData = await accommodationsRes.json();
+
+        setPrograms(programsData.data || []);
+        setAccommodations(accommodationsData.data || []);
+
+        // Set selected program if provided in URL
+        if (formData.program) {
+          const program = programsData.data?.find(p => p._id === formData.program);
+          setSelectedProgram(program);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch initial data:', error);
+      // Fallback to sample data
+      setPrograms([
+        { _id: 'ytt', title: '200-Hour Yoga Teacher Training', price: 2800, duration: 26 },
+        { _id: 'meditation', title: 'Meditation & Mindfulness Retreat', price: 1200, duration: 7 },
+        { _id: 'ayurveda', title: 'Ayurvedic Panchakarma Cleanse', price: 1800, duration: 14 },
+        { _id: 'trek', title: 'Himalayan Trek & Yoga Adventure', price: 1500, duration: 10 },
+        { _id: 'wellness', title: 'Wellness Detox Program', price: 1000, duration: 7 },
+        { _id: 'spiritual', title: 'Spiritual Healing Retreat', price: 1300, duration: 10 }
+      ]);
+
+      setAccommodations([
+        { _id: 'standard', name: 'Standard Room', pricePerNight: 50, description: 'Comfortable room with mountain views' },
+        { _id: 'deluxe', name: 'Deluxe Room', pricePerNight: 80, description: 'Spacious room with private balcony' },
+        { _id: 'suite', name: 'Himalayan Suite', pricePerNight: 120, description: 'Luxury suite with panoramic views' },
+        { _id: 'cottage', name: 'Private Cottage', pricePerNight: 150, description: 'Secluded cottage for ultimate privacy' },
+        { _id: 'dormitory', name: 'Shared Dormitory', pricePerNight: 30, description: 'Budget-friendly shared accommodation' }
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const calculatePricing = () => {
+    const program = programs.find(p => p._id === formData.program);
+    const accommodation = accommodations.find(a => a._id === formData.accommodation);
+
+    if (!program || !accommodation) return;
+
+    const checkInDate = new Date(formData.checkIn);
+    const checkOutDate = new Date(formData.checkOut);
+    const nights = Math.ceil((checkOutDate - checkInDate) / (1000 * 60 * 60 * 24));
+
+    const programPrice = program.price * formData.guests;
+    const accommodationPrice = accommodation.pricePerNight * nights * formData.guests;
+    const airportPickupPrice = formData.airportPickup ? 50 * formData.guests : 0;
+
+    const subtotal = programPrice + accommodationPrice + airportPickupPrice;
+    const tax = subtotal * 0.1; // 10% tax
+    const total = subtotal + tax;
+
+    setPricing({
+      programPrice,
+      accommodationPrice,
+      airportPickupPrice,
+      subtotal,
+      tax,
+      total,
+      nights,
+      deposit: total * 0.3 // 30% deposit
+    });
+  };
+
+  const checkAvailability = async () => {
+    try {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+      const response = await fetch(`${apiUrl}/api/programs/${formData.program}/availability?checkIn=${formData.checkIn}&checkOut=${formData.checkOut}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        setAvailability(data.data);
+      }
+    } catch (error) {
+      console.error('Failed to check availability:', error);
+      // Mock availability for demo
+      setAvailability({
+        available: true,
+        spotsLeft: 7,
+        maxCapacity: 15
+      });
+    }
+  };
 
   // Handle form input changes
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
+    const newValue = type === 'checkbox' ? checked : value;
+
     setFormData(prevData => ({
       ...prevData,
-      [name]: value
+      [name]: newValue
     }));
+
+    // Clear field error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+
+    // Update selected program/accommodation
+    if (name === 'program') {
+      const program = programs.find(p => p._id === value);
+      setSelectedProgram(program);
+    }
+
+    if (name === 'accommodation') {
+      const accommodation = accommodations.find(a => a._id === value);
+      setSelectedAccommodation(accommodation);
+    }
+  };
+
+  // Form validation
+  const validateStep = (step) => {
+    const newErrors = {};
+
+    if (step === 1) {
+      // Personal Information
+      if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
+      if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
+      if (!formData.email) newErrors.email = 'Email is required';
+      else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Invalid email format';
+      if (!formData.phone) newErrors.phone = 'Phone number is required';
+      if (!formData.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required';
+      if (!formData.emergencyContact.trim()) newErrors.emergencyContact = 'Emergency contact is required';
+      if (!formData.emergencyPhone) newErrors.emergencyPhone = 'Emergency phone is required';
+    }
+
+    if (step === 2) {
+      // Program Selection
+      if (!formData.program) newErrors.program = 'Please select a program';
+      if (!formData.accommodation) newErrors.accommodation = 'Please select accommodation';
+      if (!formData.checkIn) newErrors.checkIn = 'Check-in date is required';
+      if (!formData.checkOut) newErrors.checkOut = 'Check-out date is required';
+      if (formData.guests < 1) newErrors.guests = 'At least 1 guest is required';
+
+      // Date validation
+      if (formData.checkIn && formData.checkOut) {
+        const checkIn = new Date(formData.checkIn);
+        const checkOut = new Date(formData.checkOut);
+        const today = new Date();
+
+        if (checkIn < today) newErrors.checkIn = 'Check-in date cannot be in the past';
+        if (checkOut <= checkIn) newErrors.checkOut = 'Check-out date must be after check-in date';
+      }
+    }
+
+    if (step === 3) {
+      // Additional Information
+      if (!formData.yogaExperience) newErrors.yogaExperience = 'Please select your yoga experience level';
+      if (!formData.mealPreference) newErrors.mealPreference = 'Please select meal preference';
+    }
+
+    if (step === 4) {
+      // Payment & Terms
+      if (!formData.agreeToTerms) newErrors.agreeToTerms = 'You must agree to the terms and conditions';
+      if (!formData.paymentMethod) newErrors.paymentMethod = 'Please select a payment method';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Step navigation
+  const nextStep = () => {
+    if (validateStep(currentStep)) {
+      setCurrentStep(prev => Math.min(prev + 1, 4));
+    }
+  };
+
+  const prevStep = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
+  };
+
+  const goToStep = (step) => {
+    // Only allow going to previous steps or next step if current is valid
+    if (step < currentStep || (step === currentStep + 1 && validateStep(currentStep))) {
+      setCurrentStep(step);
+    }
   };
 
   // Handle form submission
@@ -206,7 +460,7 @@ const Booking = () => {
 
             <BookingForm onSubmit={handleSubmit}>
               {submitSuccess ? (
-                <SuccessMessage>
+                <BookingSuccessMessage>
                   <h3>Booking Request Received!</h3>
                   <p>Thank you for choosing Vaikunth Yoga Retreat. We've received your booking request and will contact you within 24 hours to confirm your reservation.</p>
                   <Button
@@ -216,7 +470,7 @@ const Booking = () => {
                   >
                     Make Another Booking
                   </Button>
-                </SuccessMessage>
+                </BookingSuccessMessage>
               ) : (
                 <>
                   <FormHeading>Booking Details</FormHeading>
@@ -481,118 +735,80 @@ const InfoNote = styled.p`
 
 const BookingForm = styled.form`
   background-color: ${({ theme }) => theme.colors.white};
-  border-radius: ${({ theme }) => theme.borderRadius.lg};
-  padding: ${({ theme }) => theme.spacing[8]};
-  box-shadow: ${({ theme }) => theme.shadows.md};
+  border-radius: ${({ theme }) => theme.borderRadius['2xl']};
+  padding: ${({ theme }) => theme.spacing[10]};
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25),
+              0 0 0 1px rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg,
+      ${({ theme }) => theme.colors.accent} 0%,
+      ${({ theme }) => theme.colors.primary} 50%,
+      ${({ theme }) => theme.colors.secondary} 100%);
+  }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
     order: 1;
+    padding: ${({ theme }) => theme.spacing[6]};
   }
 `;
 
 const FormHeading = styled.h3`
-  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  font-size: ${({ theme }) => theme.typography.fontSize['2xl']};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.gray[900]};
-  margin-bottom: ${({ theme }) => theme.spacing[6]};
+  margin-bottom: ${({ theme }) => theme.spacing[8]};
   text-align: center;
-`;
+  position: relative;
 
-const FormRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: ${({ theme }) => theme.spacing[4]};
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
-`;
-
-const FormLabel = styled.label`
-  display: block;
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
-  color: ${({ theme }) => theme.colors.gray[700]};
-  margin-bottom: ${({ theme }) => theme.spacing[2]};
-`;
-
-const FormInput = styled.input`
-  width: 100%;
-  padding: ${({ theme }) => theme.spacing[3]};
-  border: 1px solid ${({ theme }) => theme.colors.gray[300]};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.md};
-  color: ${({ theme }) => theme.colors.charcoal};
-  background-color: white;
-
-  &::placeholder {
-    color: ${({ theme }) => theme.colors.gray[500]};
-  }
-
-  &:focus {
-    outline: none;
-    border-color: ${({ theme }) => theme.colors.primary};
-    box-shadow: 0 0 0 2px rgba(42, 93, 69, 0.2);
-  }
-`;
-
-const FormSelect = styled.select`
-  width: 100%;
-  padding: ${({ theme }) => theme.spacing[3]};
-  border: 1px solid ${({ theme }) => theme.colors.gray[300]};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.md};
-  color: ${({ theme }) => theme.colors.charcoal};
-  background-color: white;
-
-  &:focus {
-    outline: none;
-    border-color: ${({ theme }) => theme.colors.primary};
-    box-shadow: 0 0 0 2px rgba(42, 93, 69, 0.2);
-  }
-
-  option {
-    color: ${({ theme }) => theme.colors.charcoal};
-    background-color: white;
-  }
-`;
-
-const FormTextarea = styled.textarea`
-  width: 100%;
-  padding: ${({ theme }) => theme.spacing[3]};
-  border: 1px solid ${({ theme }) => theme.colors.gray[300]};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  font-size: ${({ theme }) => theme.typography.fontSize.md};
-  color: ${({ theme }) => theme.colors.charcoal};
-  background-color: white;
-  resize: vertical;
-
-  &::placeholder {
-    color: ${({ theme }) => theme.colors.gray[500]};
-  }
-
-  &:focus {
-    outline: none;
-    border-color: ${({ theme }) => theme.colors.primary};
-    box-shadow: 0 0 0 2px rgba(42, 93, 69, 0.2);
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -${({ theme }) => theme.spacing[4]};
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg,
+      ${({ theme }) => theme.colors.accent} 0%,
+      ${({ theme }) => theme.colors.primary} 100%);
+    border-radius: ${({ theme }) => theme.borderRadius.full};
   }
 `;
 
 const SubmitButton = styled(Button)`
   width: 100%;
-  margin-top: ${({ theme }) => theme.spacing[4]};
+  margin-top: ${({ theme }) => theme.spacing[8]};
+  padding: ${({ theme }) => theme.spacing[4]} ${({ theme }) => theme.spacing[6]};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  font-size: ${({ theme }) => theme.typography.fontSize.md};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+                0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
 `;
 
-const ErrorMessage = styled.div`
-  background-color: ${({ theme }) => theme.colors.error}20;
-  color: ${({ theme }) => theme.colors.error};
-  padding: ${({ theme }) => theme.spacing[3]} ${({ theme }) => theme.spacing[4]};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  margin-bottom: ${({ theme }) => theme.spacing[4]};
-  font-size: ${({ theme }) => theme.typography.fontSize.sm};
-`;
-
-const SuccessMessage = styled.div`
+const BookingSuccessMessage = styled.div`
   text-align: center;
   padding: ${({ theme }) => theme.spacing[8]} ${({ theme }) => theme.spacing[4]};
 

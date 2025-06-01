@@ -7,8 +7,6 @@ import { Link } from 'react-router-dom';
 import Section from '../components/ui/Section';
 import Button from '../components/ui/Button';
 
-// Utils
-import { getImageUrl } from '../utils/imageUtils';
 
 const NotFound = () => {
   return (
@@ -20,10 +18,7 @@ const NotFound = () => {
           transition={{ duration: 0.6 }}
         >
           <NotFoundContainer>
-            <NotFoundImage 
-              src={getImageUrl('/assets/images/404.png', 400, 300)} 
-              alt="Page not found" 
-            />
+           
             <NotFoundContent>
               <NotFoundCode>404</NotFoundCode>
               <NotFoundTitle>Page Not Found</NotFoundTitle>

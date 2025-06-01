@@ -9,10 +9,10 @@ const Accommodation = require('../models/Accommodation');
 exports.getDashboardData = async (req, res) => {
   try {
     // Get user profile
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id);
 
     // Get user's bookings
-    const bookings = await Booking.find({ user: req.user.id })
+    const bookings = await Booking.find({ user: req.user._id })
       .populate('program', 'title startDate endDate image')
       .populate('accommodation', 'name type')
       .sort({ startDate: 1 });
@@ -75,11 +75,11 @@ exports.getDashboardData = async (req, res) => {
 exports.getBookingStats = async (req, res) => {
   try {
     // Get all user bookings
-    const bookings = await Booking.find({ user: req.user.id });
+    const bookings = await Booking.find({ user: req.user._id });
 
     // Calculate statistics
     const totalBookings = bookings.length;
-    
+
     // Status counts
     const statusCounts = {
       pending: 0,
@@ -96,7 +96,7 @@ exports.getBookingStats = async (req, res) => {
     const monthlyBookings = Array(12).fill(0);
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
-    
+
     bookings.forEach(booking => {
       const bookingDate = new Date(booking.createdAt);
       if (bookingDate.getFullYear() === currentYear) {
@@ -128,7 +128,7 @@ exports.getBookingStats = async (req, res) => {
 exports.getFinancialSummary = async (req, res) => {
   try {
     // Get all user bookings
-    const bookings = await Booking.find({ user: req.user.id });
+    const bookings = await Booking.find({ user: req.user._id });
 
     // Calculate total spent
     const totalSpent = bookings.reduce((total, booking) => {
@@ -140,7 +140,7 @@ exports.getFinancialSummary = async (req, res) => {
 
     // Calculate spending by program type
     const programSpending = {};
-    
+
     for (const booking of bookings) {
       if (booking.status !== 'cancelled') {
         const program = await Program.findById(booking.program);
@@ -156,7 +156,7 @@ exports.getFinancialSummary = async (req, res) => {
     // Calculate spending by month for the current year
     const monthlySpending = Array(12).fill(0);
     const currentYear = new Date().getFullYear();
-    
+
     bookings.forEach(booking => {
       const bookingDate = new Date(booking.createdAt);
       if (bookingDate.getFullYear() === currentYear && booking.status !== 'cancelled') {
@@ -188,7 +188,7 @@ exports.getFinancialSummary = async (req, res) => {
 exports.getActivityFeed = async (req, res) => {
   try {
     // Get recent bookings
-    const recentBookings = await Booking.find({ user: req.user.id })
+    const recentBookings = await Booking.find({ user: req.user._id })
       .sort({ createdAt: -1 })
       .limit(5)
       .populate('program', 'title')

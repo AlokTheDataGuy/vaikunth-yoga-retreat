@@ -1,13 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaBars, FaTimes } from 'react-icons/fa';
+import { FaBars, FaTimes, FaUser, FaSignOutAlt, FaCog } from 'react-icons/fa';
+
+// Context
+import { AuthContext } from '../../context/AuthContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useContext(AuthContext);
 
   // Handle scroll effect
   useEffect(() => {
@@ -26,7 +32,15 @@ const Navbar = () => {
   // Close mobile menu when route changes
   useEffect(() => {
     setIsOpen(false);
+    setUserMenuOpen(false);
   }, [location]);
+
+  // Handle logout
+  const handleLogout = async () => {
+    await logout();
+    setUserMenuOpen(false);
+    navigate('/');
+  };
 
   // Close mobile menu when clicking outside and handle body scroll
   useEffect(() => {
@@ -58,11 +72,12 @@ const Navbar = () => {
     <NavbarContainer $scrolled={scrolled}>
       <NavbarContent $scrolled={scrolled}>
         <LogoContainer>
-          <Link to="/">
-            <Logo $scrolled={scrolled}>
-              <img src="/assets/images/logo-symbol.png" alt="Vaikunth Yoga Retreat" />
-            </Logo>
-          </Link>
+        <Link to="/">
+    <Logo $scrolled={scrolled}>
+      <img src="/assets/images/logo-symbol.png" alt="Vaikunth Yoga Retreat" />
+      <LogoTitle $scrolled={scrolled}>Vaikunth Yoga Retreat</LogoTitle>
+    </Logo>
+  </Link>
         </LogoContainer>
 
         {/* Desktop Navigation */}
@@ -77,7 +92,51 @@ const Navbar = () => {
         </NavLinks>
 
         <NavActions>
-          <BookButton to="/booking">Reserve Your Retreat</BookButton>
+
+          {/* Authentication Section */}
+          {isAuthenticated ? (
+            <UserMenuContainer>
+              <UserMenuButton
+                onClick={() => setUserMenuOpen(!userMenuOpen)}
+                $scrolled={scrolled}
+              >
+                <FaUser />
+                <span>{user?.name?.split(' ')[0] || 'User'}</span>
+              </UserMenuButton>
+
+              <AnimatePresence>
+                {userMenuOpen && (
+                  <UserDropdown
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <UserDropdownItem to="/dashboard" onClick={() => setUserMenuOpen(false)}>
+                      <FaUser /> Dashboard
+                    </UserDropdownItem>
+                    <UserDropdownItem to="/dashboard" onClick={() => setUserMenuOpen(false)}>
+                      <FaCog /> Settings
+                    </UserDropdownItem>
+                    <UserDropdownDivider />
+                    <UserDropdownItem as="button" onClick={handleLogout}>
+                      <FaSignOutAlt /> Logout
+                    </UserDropdownItem>
+                  </UserDropdown>
+                )}
+              </AnimatePresence>
+            </UserMenuContainer>
+          ) : (
+            <AuthButtons>
+              <AuthButton to="/auth/login" $variant="outline" $scrolled={scrolled}>
+                Login
+              </AuthButton>
+              <AuthButton to="/auth/register" $variant="solid" $scrolled={scrolled}>
+                Sign Up
+              </AuthButton>
+            </AuthButtons>
+          )}
+
           <MobileMenuButton
             onClick={() => setIsOpen(!isOpen)}
             $scrolled={scrolled}
@@ -112,6 +171,38 @@ const Navbar = () => {
                 <MobileNavLink to="/blog" $isActive={location.pathname.includes('/blog')} onClick={() => setIsOpen(false)}>Blog</MobileNavLink>
                 <MobileNavLink to="/contact" $isActive={location.pathname === '/contact'} onClick={() => setIsOpen(false)}>Contact</MobileNavLink>
                 <MobileBookButton to="/booking" onClick={() => setIsOpen(false)}>Reserve Your Retreat</MobileBookButton>
+
+                {/* Mobile Authentication Section */}
+                {isAuthenticated ? (
+                  <MobileUserSection>
+                    <MobileUserInfo>
+                      <MobileUserAvatar>
+                        <FaUser />
+                      </MobileUserAvatar>
+                      <MobileUserName>{user?.name?.split(' ')[0] || 'User'}</MobileUserName>
+                    </MobileUserInfo>
+                    <MobileUserActions>
+                      <MobileUserButton to="/dashboard" onClick={() => setIsOpen(false)}>
+                        <FaUser /> Dashboard
+                      </MobileUserButton>
+                      <MobileUserButton to="/dashboard" onClick={() => setIsOpen(false)}>
+                        <FaCog /> Settings
+                      </MobileUserButton>
+                      <MobileLogoutButton onClick={() => { handleLogout(); setIsOpen(false); }}>
+                        <FaSignOutAlt /> Logout
+                      </MobileLogoutButton>
+                    </MobileUserActions>
+                  </MobileUserSection>
+                ) : (
+                  <MobileAuthButtons>
+                    <MobileAuthButton to="/auth/login" $variant="outline" onClick={() => setIsOpen(false)}>
+                      Login
+                    </MobileAuthButton>
+                    <MobileAuthButton to="/auth/register" $variant="solid" onClick={() => setIsOpen(false)}>
+                      Sign Up
+                    </MobileAuthButton>
+                  </MobileAuthButtons>
+                )}
               </MobileNavLinks>
             </MobileMenuContent>
           </MobileMenu>
@@ -155,7 +246,12 @@ const LogoContainer = styled.div`
   z-index: ${({ theme }) => theme.zIndex[20]};
 `;
 
+
 const Logo = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[3]};
+
   img {
     width: 120px;
     height: auto;
@@ -171,6 +267,25 @@ const Logo = styled.div`
     @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
       width: 80px;
     }
+  }
+`;
+
+const LogoTitle = styled.div`
+  font-family: ${({ theme }) => theme.typography.fontFamily.accent};
+  font-size: ${({ theme }) => theme.typography.fontSize.xl};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  color: ${({ theme }) => theme.colors.charcoal};
+  transition: opacity ${({ theme }) => theme.animation.normal} ease;
+  display: none;
+  opacity: ${({ $scrolled }) => ($scrolled ? 1 : 0)};
+  margin-left: 15px;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    display: ${({ $scrolled }) => ($scrolled ? 'block' : 'none')};
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    font-size: ${({ theme }) => theme.typography.fontSize.lg};
   }
 `;
 
@@ -401,6 +516,272 @@ const MobileBookButton = styled(BookButton)`
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     display: block;
+  }
+`;
+
+// Authentication Styled Components
+const AuthButtons = styled.div`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[3]};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    display: none;
+  }
+`;
+
+const AuthButton = styled(Link)`
+  font-family: ${({ theme }) => theme.typography.fontFamily.body};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[4]}`};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  transition: all ${({ theme }) => theme.animation.normal} ease;
+  text-decoration: none;
+
+  ${({ $variant, $scrolled, theme }) => {
+    if ($variant === 'outline') {
+      return `
+        border: 1px solid ${$scrolled ? theme.colors.gray[300] : 'rgba(255, 255, 255, 0.5)'};
+        color: ${$scrolled ? theme.colors.gray[700] : theme.colors.white};
+        background: transparent;
+
+        &:hover {
+          background: ${$scrolled ? theme.colors.gray[100] : 'rgba(255, 255, 255, 0.1)'};
+          border-color: ${$scrolled ? theme.colors.gray[400] : theme.colors.white};
+        }
+      `;
+    } else {
+      return `
+        background-color: ${theme.colors.accent};
+        color: white;
+        border: 1px solid ${theme.colors.accent};
+
+        &:hover {
+          background-color: ${theme.colors.primary};
+          border-color: ${theme.colors.primary};
+          transform: translateY(-1px);
+          box-shadow: ${theme.shadows.md};
+        }
+      `;
+    }
+  }}
+`;
+
+const UserMenuContainer = styled.div`
+  position: relative;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    display: none;
+  }
+`;
+
+const UserMenuButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  background: ${({ $scrolled }) =>
+    $scrolled ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.1)'};
+  border: 1px solid ${({ $scrolled, theme }) =>
+    $scrolled ? theme.colors.gray[300] : 'rgba(255, 255, 255, 0.3)'};
+  color: ${({ $scrolled, theme }) =>
+    $scrolled ? theme.colors.gray[700] : theme.colors.white};
+  padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[3]}`};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  cursor: pointer;
+  transition: all ${({ theme }) => theme.animation.normal} ease;
+
+  &:hover {
+    background: ${({ $scrolled, theme }) =>
+      $scrolled ? theme.colors.gray[100] : 'rgba(255, 255, 255, 0.2)'};
+  }
+
+  span {
+    @media (max-width: ${({ theme }) => theme.breakpoints.xl}) {
+      display: none;
+    }
+  }
+`;
+
+const UserDropdown = styled(motion.div)`
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: ${({ theme }) => theme.spacing[2]};
+  background: ${({ theme }) => theme.colors.white};
+  border: 1px solid ${({ theme }) => theme.colors.gray[200]};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  box-shadow: ${({ theme }) => theme.shadows.lg};
+  min-width: 180px;
+  z-index: ${({ theme }) => theme.zIndex[50]};
+  overflow: hidden;
+`;
+
+const UserDropdownItem = styled(Link)`
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  padding: ${({ theme }) => `${theme.spacing[3]} ${theme.spacing[4]}`};
+  color: ${({ theme }) => theme.colors.gray[700]};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  text-decoration: none;
+  transition: all ${({ theme }) => theme.animation.normal} ease;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.gray[50]};
+    color: ${({ theme }) => theme.colors.gray[900]};
+  }
+`;
+
+const UserDropdownDivider = styled.div`
+  height: 1px;
+  background: ${({ theme }) => theme.colors.gray[200]};
+  margin: ${({ theme }) => theme.spacing[1]} 0;
+`;
+
+// Mobile Authentication Styled Components
+const MobileAuthButtons = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[3]};
+  margin-top: ${({ theme }) => theme.spacing[6]};
+  width: 100%;
+  max-width: 250px;
+`;
+
+const MobileAuthButton = styled(Link)`
+  font-family: ${({ theme }) => theme.typography.fontFamily.body};
+  font-size: ${({ theme }) => theme.typography.fontSize.base};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  padding: ${({ theme }) => `${theme.spacing[3]} ${theme.spacing[6]}`};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  transition: all ${({ theme }) => theme.animation.normal} ease;
+  text-decoration: none;
+  text-align: center;
+  width: 100%;
+
+  ${({ $variant, theme }) => {
+    if ($variant === 'outline') {
+      return `
+        border: 1px solid ${theme.colors.gray[300]};
+        color: ${theme.colors.gray[700]};
+        background: transparent;
+
+        &:hover {
+          background: ${theme.colors.gray[100]};
+          border-color: ${theme.colors.gray[400]};
+        }
+      `;
+    } else {
+      return `
+        background-color: ${theme.colors.accent};
+        color: white;
+        border: 1px solid ${theme.colors.accent};
+
+        &:hover {
+          background-color: ${theme.colors.primary};
+          border-color: ${theme.colors.primary};
+          transform: translateY(-1px);
+          box-shadow: ${theme.shadows.md};
+        }
+      `;
+    }
+  }}
+`;
+
+const MobileUserSection = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[4]};
+  margin-top: ${({ theme }) => theme.spacing[6]};
+  padding: ${({ theme }) => theme.spacing[4]};
+  background: ${({ theme }) => theme.colors.gray[50]};
+  border-radius: ${({ theme }) => theme.borderRadius.lg};
+  width: 100%;
+  max-width: 250px;
+`;
+
+const MobileUserInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+`;
+
+const MobileUserAvatar = styled.div`
+  width: 50px;
+  height: 50px;
+  background: ${({ theme }) => theme.colors.primary};
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+`;
+
+const MobileUserName = styled.div`
+  font-family: ${({ theme }) => theme.typography.fontFamily.body};
+  font-size: ${({ theme }) => theme.typography.fontSize.lg};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  color: ${({ theme }) => theme.colors.charcoal};
+`;
+
+const MobileUserActions = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing[2]};
+  width: 100%;
+`;
+
+const MobileUserButton = styled(Link)`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[4]}`};
+  color: ${({ theme }) => theme.colors.gray[700]};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  text-decoration: none;
+  transition: all ${({ theme }) => theme.animation.normal} ease;
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  background: transparent;
+  border: 1px solid ${({ theme }) => theme.colors.gray[200]};
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.gray[100]};
+    color: ${({ theme }) => theme.colors.gray[900]};
+  }
+`;
+
+const MobileLogoutButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: ${({ theme }) => theme.spacing[2]};
+  padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[4]}`};
+  color: ${({ theme }) => theme.colors.red[600]};
+  font-size: ${({ theme }) => theme.typography.fontSize.sm};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  background: transparent;
+  border: 1px solid ${({ theme }) => theme.colors.red[200]};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  cursor: pointer;
+  transition: all ${({ theme }) => theme.animation.normal} ease;
+  width: 100%;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.red[50]};
+    border-color: ${({ theme }) => theme.colors.red[300]};
+    color: ${({ theme }) => theme.colors.red[700]};
   }
 `;
 

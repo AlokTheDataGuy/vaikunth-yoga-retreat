@@ -30,8 +30,8 @@ exports.protect = async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-jwt-secret');
 
-    // Get user from the token
-    req.user = await User.findById(decoded.id);
+    // Get user from the token (support both id and userId)
+    req.user = await User.findById(decoded.userId || decoded.id);
 
     // Check if user exists
     if (!req.user) {
@@ -74,7 +74,12 @@ exports.authorize = (...roles) => {
         message: `User role ${req.user.role} is not authorized to access this route`
       });
     }
-    
+
     next();
   };
 };
+
+// Export auth as an alias for protect for backward compatibility
+module.exports = exports.protect;
+module.exports.protect = exports.protect;
+module.exports.authorize = exports.authorize;

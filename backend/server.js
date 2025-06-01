@@ -9,6 +9,7 @@ const cookieParser = require('cookie-parser');
 dotenv.config();
 
 // Import routes
+const authRoutes = require('./routes/authRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const publicContactRoutes = require('./routes/publicContactRoutes');
 const programRoutes = require('./routes/programRoutes');
@@ -41,6 +42,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // API Routes
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', message: 'Server is running' });
+});
+
+app.use('/api/auth', authRoutes); // Authentication routes
 app.use('/api/contact', contactRoutes); // Protected contact routes
 app.use('/api/contact', publicContactRoutes); // Public contact routes (no auth required)
 app.use('/api/programs', programRoutes);

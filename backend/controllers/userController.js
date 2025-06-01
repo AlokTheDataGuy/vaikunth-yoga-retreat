@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const crypto = require('crypto');
+const emailService = require('../services/emailService');
 
 // @desc    Register user
 // @route   POST /api/users/register
@@ -26,19 +27,31 @@ exports.register = async (req, res) => {
       role: role === 'instructor' ? 'instructor' : 'user' // Prevent creating admin users
     });
 
-    // Generate verification token
-    const verificationToken = crypto.randomBytes(20).toString('hex');
-    user.emailVerificationToken = crypto
-      .createHash('sha256')
-      .update(verificationToken)
-      .digest('hex');
-
+    // Generate email verification OTP
+    const otp = user.generateEmailVerificationOTP();
     await user.save();
 
-    // Send token in response (in a real app, would send email)
-    sendTokenResponse(user, 201, res, {
-      message: 'User registered successfully',
-      verificationToken // In a real app, this would be sent via email
+    // Send OTP via email
+    try {
+      await emailService.sendEmailVerificationOTP(user.email, otp, user.name);
+      console.log(`OTP generated for ${user.email}: ${otp}`); // Log for development
+    } catch (emailError) {
+      console.error('Error sending verification email:', emailError);
+      // In development, log the OTP so user can still verify
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`\n=== DEVELOPMENT MODE - OTP for ${user.email}: ${otp} ===\n`);
+      }
+      // Continue with registration even if email fails
+    }
+
+    // Return success without token (user needs to verify email first)
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful! Please check your email for verification code.',
+      data: {
+        email: user.email,
+        name: user.name
+      }
     });
   } catch (error) {
     console.error('Error registering user:', error);
@@ -285,29 +298,48 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
-// @desc    Verify email
-// @route   GET /api/users/verifyemail/:verificationtoken
+// @desc    Verify email with OTP
+// @route   POST /api/users/verify-email-otp
 // @access  Public
-exports.verifyEmail = async (req, res) => {
+exports.verifyEmailOTP = async (req, res) => {
   try {
-    // Get hashed token
-    const emailVerificationToken = crypto
-      .createHash('sha256')
-      .update(req.params.verificationtoken)
-      .digest('hex');
+    const { email, otp } = req.body;
 
-    const user = await User.findOne({ emailVerificationToken });
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and OTP are required'
+      });
+    }
+
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: 'Invalid verification token'
+        message: 'User not found'
+      });
+    }
+
+    if (user.emailVerified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is already verified'
+      });
+    }
+
+    // Verify OTP
+    if (!user.verifyEmailOTP(otp)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired OTP'
       });
     }
 
     // Set email as verified
     user.emailVerified = true;
-    user.emailVerificationToken = undefined;
+    user.emailVerificationOTP = undefined;
+    user.emailVerificationOTPExpire = undefined;
     await user.save();
 
     res.status(200).json({
@@ -319,6 +351,72 @@ exports.verifyEmail = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to verify email',
+      error: process.env.NODE_ENV === 'production' ? {} : error
+    });
+  }
+};
+
+// @desc    Resend email verification OTP
+// @route   POST /api/users/resend-verification-otp
+// @access  Public
+exports.resendVerificationOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required'
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    if (user.emailVerified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is already verified'
+      });
+    }
+
+    // Generate new OTP
+    const otp = user.generateEmailVerificationOTP();
+    await user.save();
+
+    // Send OTP via email
+    try {
+      await emailService.sendEmailVerificationOTP(user.email, otp, user.name);
+      console.log(`Resent OTP for ${user.email}: ${otp}`); // Log for development
+    } catch (emailError) {
+      console.error('Error sending verification email:', emailError);
+      // In development, log the OTP so user can still verify
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`\n=== DEVELOPMENT MODE - Resent OTP for ${user.email}: ${otp} ===\n`);
+        // Don't fail in development mode
+      } else {
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to send verification email'
+        });
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Verification code sent successfully'
+    });
+  } catch (error) {
+    console.error('Error resending verification OTP:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to resend verification code',
       error: process.env.NODE_ENV === 'production' ? {} : error
     });
   }

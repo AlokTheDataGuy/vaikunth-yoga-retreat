@@ -8,14 +8,18 @@ import theme from './styles/theme';
 import Home from './pages/Home';
 import About from './pages/About';
 import Programs from './pages/Programs';
-// import ProgramDetail from './pages/ProgramDetail';
+import ProgramDetail from './pages/ProgramDetail';
 import Accommodations from './pages/Accommodations';
 import Testimonials from './pages/Testimonials';
 import Booking from './pages/Booking';
 import Blog from './pages/Blog';
 import BlogPost from './pages/BlogPost';
 import ContactPage from './pages/contact/ContactPage';
-// import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/Dashboard';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import VerifyEmail from './pages/auth/VerifyEmail';
+import ForgotPassword from './pages/auth/ForgotPassword';
 import NotFound from './pages/NotFound';
 
 // Components
@@ -25,31 +29,52 @@ import ScrollToTop from './components/utils/ScrollToTop';
 import WhatsAppButton from './components/ui/WhatsAppButton';
 import ConstructionModal from './components/ui/ConstructionModal';
 
+// Context
+import { AuthProvider } from './context/AuthContext';
+
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyles />
-      <Router>
-        <ScrollToTop />
-        <Navbar />
-        <ConstructionModal />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/programs" element={<Programs />} />
-          {/* <Route path="/programs/:id" element={<ProgramDetail />} /> */}
-          <Route path="/accommodations" element={<Accommodations />} />
-          <Route path="/testimonials" element={<Testimonials />} />
-          <Route path="/booking" element={<Booking />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/:id" element={<BlogPost />} />
-          <Route path="/contact" element={<ContactPage />} />
-          {/* <Route path="/dashboard" element={<Dashboard />} /> */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <Footer />
-        <WhatsAppButton phoneNumber="917300620149" message="Hello! I'm interested in Vaikunth Yoga Retreat." />
-      </Router>
+      <AuthProvider>
+        <Router>
+          <ScrollToTop />
+          <Routes>
+            {/* Authentication Routes - No Navbar/Footer */}
+            <Route path="/auth/login" element={<Login />} />
+            <Route path="/auth/register" element={<Register />} />
+            <Route path="/auth/verify-email" element={<VerifyEmail />} />
+            <Route path="/auth/forgot-password" element={<ForgotPassword />} />
+
+            {/* Regular Routes - With Navbar/Footer */}
+            <Route path="/*" element={
+              <>
+                <Navbar />
+                <ConstructionModal />
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/programs" element={<Programs />} />
+                  <Route path="/programs/:id" element={<ProgramDetail />} />
+                  <Route path="/accommodations" element={<Accommodations />} />
+                  <Route path="/testimonials" element={<Testimonials />} />
+                  <Route path="/booking" element={<Booking />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/blog/:id" element={<BlogPost />} />
+                  <Route path="/contact" element={<ContactPage />} />
+
+                  {/* Protected Routes */}
+                  <Route path="/dashboard" element={<Dashboard />} />
+
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+                <Footer />
+                <WhatsAppButton phoneNumber="917300620149" message="Hello! I'm interested in Vaikunth Yoga Retreat." />
+              </>
+            } />
+          </Routes>
+        </Router>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

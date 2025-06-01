@@ -7,7 +7,8 @@ const {
   updatePassword,
   forgotPassword,
   resetPassword,
-  verifyEmail,
+  verifyEmailOTP,
+  resendVerificationOTP,
   getUsers
 } = require('../controllers/userController');
 
@@ -21,7 +22,8 @@ router.post('/register', register);
 router.post('/login', login);
 router.post('/forgotpassword', forgotPassword);
 router.put('/resetpassword/:resettoken', resetPassword);
-router.get('/verifyemail/:verificationtoken', verifyEmail);
+router.post('/verify-email-otp', verifyEmailOTP);
+router.post('/resend-verification-otp', resendVerificationOTP);
 
 // Protected routes
 router.get('/me', protect, getMe);
