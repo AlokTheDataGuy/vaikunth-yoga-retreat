@@ -112,7 +112,7 @@ const About = () => {
 
           <StoryContainer>
             <StoryImage>
-              <img src={getCategoryPlaceholder('people', 800, 1000)} alt="Founder Guru Amrit Singh" />
+              <img src={getImageUrl('/assets/images/auli1.jpg', 800, 1000)} alt="Founder Guru Amrit Singh" />
             </StoryImage>
 
             <StoryContent>
@@ -483,7 +483,7 @@ const MissionVision = styled.div`
 const MissionCard = styled.div`
   background-color: ${({ theme }) => theme.colors.primary};
   color: ${({ theme }) => theme.colors.white};
-  padding: ${({ theme }) => theme.spacing[6]};
+  padding: ${({ theme }) => theme.spacing[5]};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
 `;
 

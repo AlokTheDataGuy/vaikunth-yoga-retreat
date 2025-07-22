@@ -233,12 +233,12 @@ const NavbarContent = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: ${({ theme }) => `${theme.spacing[4]} ${theme.spacing[6]}`};
+  padding: ${({ theme }) => `${theme.spacing[0]} ${theme.spacing[6]}`};
   max-width: 1400px;
   margin: 0 auto;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    padding: ${({ theme }) => `${theme.spacing[3]} ${theme.spacing[4]}`};
+    padding: ${({ theme }) => `${theme.spacing[2]} ${theme.spacing[4]}`};
   }
 `;
 
@@ -256,7 +256,7 @@ const Logo = styled.div`
     width: 120px;
     height: auto;
     filter: drop-shadow(0 0 6px rgba(255, 253, 253, 0.3));
-    padding: 4px;
+    padding: 9px;
     borderRadius: 50%;
     transition: all ${({ theme }) => theme.animation.normal} ease;
 

@@ -377,7 +377,7 @@ const Accommodations = () => {
               <Button to="/booking" variant="accent" size="large">
                 Book Your Stay
               </Button>
-              <Button to="/contact" variant="outline" size="large">
+              <Button to="/contact" variant="accent" size="large">
                 Contact Us With Questions
               </Button>
             </CTAButtons>

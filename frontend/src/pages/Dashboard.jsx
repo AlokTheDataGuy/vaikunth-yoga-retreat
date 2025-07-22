@@ -531,7 +531,7 @@ const NavigationContainer = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   margin: 10px;
   margin-top: 10px;
-  margin-left: 30px;
+  margin-left: 15px;
   flex-direction: column;
   position: sticky;
   top: 0;
